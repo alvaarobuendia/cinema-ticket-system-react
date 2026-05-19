@@ -1,0 +1,16 @@
+namespace CinemaTicketSystem.Api.DTOs.Users;
+
+public class UpdateUserDto
+{
+    public string FirstName { get; set; }
+        = string.Empty;
+
+    public string LastName { get; set; }
+        = string.Empty;
+
+    public string PhoneNumber { get; set; }
+        = string.Empty;
+
+    public string ConcurrencyStamp { get; set; }
+        = string.Empty;
+}

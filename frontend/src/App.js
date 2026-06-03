@@ -6,6 +6,7 @@ import RegisterPage from "./pages/RegisterPage";
 import ScreeningsPage from "./pages/ScreeningsPage";
 import ProfilePage from "./pages/ProfilePage";
 import UsersPage from "./pages/UsersPage";
+import RoomPage from "./pages/RoomPage";
 
 export default function App() {
     return (
@@ -17,6 +18,8 @@ export default function App() {
             <Route path="/register" element={<RegisterPage />} />
 
             <Route path="/screenings" element={<ScreeningsPage />} />
+
+            <Route path="/screenings/:screeningId/room" element={<RoomPage />} />
 
             <Route path="/profile" element={<ProfilePage />} />
 

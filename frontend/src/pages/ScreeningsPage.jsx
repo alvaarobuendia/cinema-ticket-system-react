@@ -3,6 +3,10 @@ import {
     useState
 } from "react";
 
+import {
+    Link
+} from "react-router-dom";
+
 import Navbar from "../components/Navbar";
 
 import api from "../services/api";
@@ -364,23 +368,30 @@ export default function ScreeningsPage() {
 
                                                     </p>
 
-                                                    {isAdmin() && (
+                                                    <div className="d-flex gap-2">
 
-                                                        <button
-                                                            className="
-                                                                btn
-                                                                btn-danger
-                                                                btn-sm
-                                                            "
-                                                            onClick={() =>
-                                                                handleDelete(
-                                                                    screening.id
-                                                                )
-                                                            }
+                                                        <Link
+                                                            className="btn btn-success btn-sm"
+                                                            to={`/screenings/${screening.id}/room`}
                                                         >
-                                                            Delete
-                                                        </button>
-                                                    )}
+                                                            View seats
+                                                        </Link>
+
+                                                        {isAdmin() && (
+
+                                                            <button
+                                                                className="btn btn-danger btn-sm"
+                                                                onClick={() =>
+                                                                    handleDelete(
+                                                                        screening.id
+                                                                    )
+                                                                }
+                                                            >
+                                                                Delete
+                                                            </button>
+                                                        )}
+
+                                                    </div>
 
                                                 </div>
 

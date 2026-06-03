@@ -11,4 +11,7 @@ public class Screening
     public int CinemaId { get; set; }
 
     public Cinema? Cinema { get; set; }
+
+    public ICollection<Reservation> Reservations { get; set; }
+        = new List<Reservation>();
 }

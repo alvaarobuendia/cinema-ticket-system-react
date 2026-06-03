@@ -129,7 +129,13 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
+    app.UseCors("ReactApp");
 }
+
+app.UseDefaultFiles();
+
+app.UseStaticFiles();
 
 /*
     During development, the React app calls the HTTP backend:
@@ -140,12 +146,12 @@ if (app.Environment.IsDevelopment())
 */
 // app.UseHttpsRedirection();
 
-app.UseCors("ReactApp");
-
 app.UseAuthentication();
 
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapFallbackToFile("index.html");
 
 app.Run();

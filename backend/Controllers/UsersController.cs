@@ -1,3 +1,4 @@
+using CinemaTicketSystem.Api.Data;
 using CinemaTicketSystem.Api.DTOs.Users;
 using CinemaTicketSystem.Api.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -13,10 +14,15 @@ namespace CinemaTicketSystem.Api.Controllers;
 public class UsersController : ControllerBase
 {
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly ApplicationDbContext _context;
 
-    public UsersController(UserManager<ApplicationUser> userManager)
+    public UsersController(
+        UserManager<ApplicationUser> userManager,
+        ApplicationDbContext context
+    )
     {
         _userManager = userManager;
+        _context = context;
     }
 
     [HttpGet]
@@ -43,11 +49,8 @@ public class UsersController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetUser(string id)
     {
-        var currentUserId =
-            _userManager.GetUserId(User);
-
-        var isAdmin =
-            User.IsInRole("Admin");
+        var currentUserId = _userManager.GetUserId(User);
+        var isAdmin = User.IsInRole("Admin");
 
         if (!isAdmin && currentUserId != id)
         {
@@ -70,49 +73,82 @@ public class UsersController : ControllerBase
         UpdateUserDto dto
     )
     {
-        var currentUserId =
-            _userManager.GetUserId(User);
-
-        var isAdmin =
-            User.IsInRole("Admin");
+        var currentUserId = _userManager.GetUserId(User);
+        var isAdmin = User.IsInRole("Admin");
 
         if (!isAdmin && currentUserId != id)
         {
             return Forbid();
         }
 
-        var user = await _userManager.FindByIdAsync(id);
+        var userExists = await _context.Users.AnyAsync(u => u.Id == id);
 
-        if (user == null)
+        if (!userExists)
         {
             return NotFound();
         }
 
-        if (user.ConcurrencyStamp != dto.ConcurrencyStamp)
+        var user = new ApplicationUser
         {
+            Id = id,
+            FirstName = dto.FirstName,
+            LastName = dto.LastName,
+            PhoneNumber = dto.PhoneNumber,
+            ConcurrencyStamp = Guid.NewGuid().ToString()
+        };
+
+        _context.Users.Attach(user);
+
+        _context.Entry(user)
+            .Property(u => u.ConcurrencyStamp)
+            .OriginalValue = dto.ConcurrencyStamp;
+
+        _context.Entry(user)
+            .Property(u => u.FirstName)
+            .IsModified = true;
+
+        _context.Entry(user)
+            .Property(u => u.LastName)
+            .IsModified = true;
+
+        _context.Entry(user)
+            .Property(u => u.PhoneNumber)
+            .IsModified = true;
+
+        _context.Entry(user)
+            .Property(u => u.ConcurrencyStamp)
+            .IsModified = true;
+
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            var currentUser = await _context.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            if (currentUser == null)
+            {
+                return NotFound();
+            }
+
             return Conflict(new
             {
                 message = "User was modified by another user.",
-                currentUser = ToUserDto(user)
+                currentUser = ToUserDto(currentUser)
             });
         }
 
-        user.FirstName = dto.FirstName;
-        user.LastName = dto.LastName;
-        user.PhoneNumber = dto.PhoneNumber;
-        user.ConcurrencyStamp = Guid.NewGuid().ToString();
-
-        var result = await _userManager.UpdateAsync(user);
-
-        if (!result.Succeeded)
-        {
-            return BadRequest(result.Errors);
-        }
+        var updatedUser = await _context.Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(u => u.Id == id);
 
         return Ok(new
         {
             message = "User updated successfully",
-            user = ToUserDto(user)
+            user = ToUserDto(updatedUser!)
         });
     }
 
@@ -123,27 +159,47 @@ public class UsersController : ControllerBase
         [FromQuery] string concurrencyStamp
     )
     {
-        var user = await _userManager.FindByIdAsync(id);
+        var userExists = await _context.Users.AnyAsync(u => u.Id == id);
 
-        if (user == null)
+        if (!userExists)
         {
             return NotFound();
         }
 
-        if (user.ConcurrencyStamp != concurrencyStamp)
+        var user = new ApplicationUser
         {
+            Id = id,
+            ConcurrencyStamp = concurrencyStamp
+        };
+
+        _context.Users.Attach(user);
+
+        _context.Entry(user)
+            .Property(u => u.ConcurrencyStamp)
+            .OriginalValue = concurrencyStamp;
+
+        _context.Users.Remove(user);
+
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            var currentUser = await _context.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            if (currentUser == null)
+            {
+                return NotFound();
+            }
+
             return Conflict(new
             {
                 message = "User was modified before deletion.",
-                currentUser = ToUserDto(user)
+                currentUser = ToUserDto(currentUser)
             });
-        }
-
-        var result = await _userManager.DeleteAsync(user);
-
-        if (!result.Succeeded)
-        {
-            return BadRequest(result.Errors);
         }
 
         return Ok(new

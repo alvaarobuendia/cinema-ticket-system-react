@@ -2,15 +2,18 @@
 # FRONTEND
 # =========================
 
-frontend/node_modules
-frontend/build
+frontend/node_modules/
+frontend/build/
 
 # =========================
 # BACKEND (.NET)
 # =========================
 
-backend/bin
-backend/obj
+backend/bin/
+backend/obj/
+
+# Production build generated from React
+backend/wwwroot/
 
 # User-specific files
 *.user
@@ -28,8 +31,8 @@ backend/obj
 # IDEs
 # =========================
 
-.vscode
-.idea
+.vscode/
+.idea/
 
 # =========================
 # OS FILES

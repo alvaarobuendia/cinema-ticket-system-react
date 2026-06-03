@@ -1,4 +1,4 @@
-# Cinema Ticket System - Task 3
+Cinema Ticket System - Tasks 3 & 4
 
 Graphical User Interfaces project developed with:
 
@@ -8,92 +8,149 @@ Graphical User Interfaces project developed with:
 - SQLite
 - Bootstrap
 
-## Features
+==================================================
+FEATURES
+==================================================
 
-### Authentication
+Authentication
+--------------
 - User registration
 - Login with JWT authentication
 - Role-based authorization (Admin/User)
 
-### Users Management
+Users Management
+----------------
 - Edit user profile
 - Admin can manage users
-- Optimistic concurrency handling using `ConcurrencyStamp`
+- Optimistic concurrency handling using ConcurrencyStamp
 
-### Screenings
+Screenings
+----------
 - List screenings
 - Admin can create screenings
 - Admin can delete screenings
 
-## Technologies
+Reservations
+------------
+- Display room occupancy for a selected screening
+- View available and occupied seats
+- Reserve a seat
+- Cancel a reservation
+- Users can only cancel their own reservations
+- Administrators can manage all reservations
 
-### Backend
+Concurrent Reservation Handling
+-------------------------------
+The application prevents multiple users from reserving
+the same seat simultaneously.
+
+A unique database constraint is applied on:
+
+(ScreeningId, Row, Seat)
+
+If two users attempt to reserve the same seat at the
+same time:
+
+- the first reservation succeeds
+- the second reservation receives 409 Conflict
+
+This guarantees seat consistency and prevents
+duplicate reservations.
+
+Production Deployment
+---------------------
+The application supports deployment using a single
+ASP.NET Core server.
+
+The React frontend is built using:
+
+npm run build
+
+and served by ASP.NET Core through static files.
+
+==================================================
+TECHNOLOGIES
+==================================================
+
+Backend
+-------
 - ASP.NET Core
 - Entity Framework Core
 - ASP.NET Identity
 - JWT Authentication
 - SQLite
 
-### Frontend
+Frontend
+--------
 - React
 - React Router
 - Axios
 - Bootstrap
 - Create React App
 
----
+==================================================
+RUN BACKEND
+==================================================
 
-# Run Backend
-
-```bash
 cd backend
 dotnet run --launch-profile http
-```
 
 Backend runs on:
 
-```txt
 http://localhost:5168
-```
 
----
+==================================================
+RUN FRONTEND
+==================================================
 
-# Run Frontend
-
-```bash
 cd frontend
 npm install
 npm start
-```
 
 Frontend runs on:
 
-```txt
 http://localhost:3000
-```
 
----
+==================================================
+PRODUCTION BUILD
+==================================================
 
-# Concurrency Handling
+Create the React production build:
 
-The application uses optimistic concurrency control with `ConcurrencyStamp`.
+cd frontend
+npm run build
+
+Copy the build into the backend static files directory:
+
+cp -r build ../backend/wwwroot
+
+Run the backend:
+
+cd ../backend
+dotnet run
+
+The entire application will be available from a
+single ASP.NET Core server.
+
+==================================================
+USER CONCURRENCY HANDLING
+==================================================
+
+The application uses optimistic concurrency control
+with ConcurrencyStamp.
 
 When a user is updated or deleted:
-- frontend sends the current `ConcurrencyStamp`
-- backend compares it with database value
-- if values differ, backend returns:
 
-```txt
-409 Conflict
-```
+- frontend sends the current ConcurrencyStamp
+- backend compares it with the database value
+- if values differ, backend returns 409 Conflict
 
-This prevents overwriting changes made by another user.
+This prevents overwriting changes made by another
+user.
 
----
+==================================================
+DEMO ADMIN ACCOUNT
+==================================================
 
-# Demo Admin Account
-
-```txt
 Email: admin@cinema.com
 Password: Admin123!
-```

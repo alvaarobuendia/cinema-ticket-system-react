@@ -1,70 +1,166 @@
-# Getting Started with Create React App
+# Cinema Ticket System
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Cinema ticket reservation system developed for the Graphical User Interfaces course using ASP.NET Core, Entity Framework Core and React.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+### User Management
 
-### `npm start`
+* User registration and login
+* JWT authentication
+* User profile management
+* Edit personal information:
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+  * First name
+  * Last name
+  * Phone number
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Cinema Screenings
 
-### `npm test`
+* Fixed list of cinemas seeded into the database
+* Create screenings (Admin only)
+* Delete screenings (Admin only)
+* Assign screenings to cinemas
+* Manage screening dates and movie titles
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Seat Reservations
 
-### `npm run build`
+* Display room occupancy
+* Reserve seats for a selected screening
+* Cancel reservations
+* Conflict handling for concurrent reservations
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Administration
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+* User management
+* Screening management
+* Role-based authorization
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Technologies
 
-### `npm run eject`
+### Backend
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+* ASP.NET Core 8
+* Entity Framework Core
+* ASP.NET Identity
+* JWT Authentication
+* SQLite
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Frontend
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+* React
+* React Router
+* Axios
+* Bootstrap
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## Requirements
 
-## Learn More
+* .NET 8 SDK
+* Node.js 18+
+* npm
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Database
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+The application uses SQLite and Entity Framework Core.
 
-### Code Splitting
+The database is automatically created and seeded with:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+* Administrator account
+* Default cinemas
+* User roles
 
-### Analyzing the Bundle Size
+## Default Administrator Account
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+Email:
 
-### Making a Progressive Web App
+[admin@cinema.com](mailto:admin@cinema.com)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+Password:
 
-### Advanced Configuration
+Admin123!
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## Running the Project
 
-### Deployment
+### Backend
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+Navigate to the backend folder:
 
-### `npm run build` fails to minify
+```bash
+cd backend
+dotnet restore
+dotnet run
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+The application will be available at:
+
+```text
+http://localhost:5168
+```
+
+### Frontend Development Mode
+
+Navigate to the frontend folder:
+
+```bash
+cd frontend
+npm install
+npm start
+```
+
+React development server:
+
+```text
+http://localhost:3000
+```
+
+## Production Version (Single Server)
+
+Build the React application:
+
+```bash
+cd frontend
+npm run build
+```
+
+Copy the generated files from:
+
+```text
+frontend/build
+```
+
+to:
+
+```text
+backend/wwwroot
+```
+
+Run the ASP.NET application:
+
+```bash
+cd backend
+dotnet run
+```
+
+The complete application will be available at:
+
+```text
+http://localhost:5168
+```
+
+Both the React frontend and the ASP.NET API are served by the same server.
+
+## Concurrency Handling
+
+### User Updates
+
+User modifications use optimistic concurrency control through ASP.NET Identity.
+
+### Seat Reservations
+
+Seat reservation conflicts are prevented using a unique database constraint on:
+
+```text
+(ScreeningId, Row, Seat)
+```
+
+If multiple users attempt to reserve the same seat simultaneously, only one reservation succeeds.

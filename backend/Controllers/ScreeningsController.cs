@@ -91,21 +91,33 @@ public class ScreeningsController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteScreening(int id)
     {
-        var screening = await _context.Screenings
-            .FirstOrDefaultAsync(s => s.Id == id);
+    var screening = await _context.Screenings.FindAsync(id);
 
-        if (screening == null)
+    if (screening == null)
+    {
+        return NotFound(new
         {
-            return NotFound();
-        }
-
-        _context.Screenings.Remove(screening);
-
-        await _context.SaveChangesAsync();
-
-        return Ok(new
-        {
-            message = "Screening deleted successfully"
+            message = "Screening not found or already deleted"
         });
+    }
+
+    _context.Screenings.Remove(screening);
+
+    try
+    {
+        await _context.SaveChangesAsync();
+    }
+    catch (DbUpdateConcurrencyException)
+    {
+        return NotFound(new
+        {
+            message = "Screening was already deleted by another administrator"
+        });
+    }
+
+    return Ok(new
+    {
+        message = "Screening deleted successfully"
+    });
     }
 }

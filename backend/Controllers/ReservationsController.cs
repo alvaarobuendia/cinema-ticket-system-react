@@ -143,6 +143,17 @@ public class ReservationsController : ControllerBase
         }
         catch (DbUpdateException)
         {
+            var screeningStillExists = await _context.Screenings
+                .AnyAsync(s => s.Id == screeningId);
+
+            if (!screeningStillExists)
+            {
+                return NotFound(new
+                {
+                    message = "Screening was deleted by another administrator"
+                });
+            }
+
             return Conflict(new
             {
                 message = "Seat is already reserved"
@@ -179,7 +190,7 @@ public class ReservationsController : ControllerBase
         {
             return NotFound(new
             {
-                message = "Reservation not found"
+                message = "Reservation not found or already cancelled"
             });
         }
 
@@ -190,7 +201,17 @@ public class ReservationsController : ControllerBase
 
         _context.Reservations.Remove(reservation);
 
-        await _context.SaveChangesAsync();
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            return NotFound(new
+            {
+                message = "Reservation was already cancelled by another user"
+            });
+        }
 
         return Ok(new
         {

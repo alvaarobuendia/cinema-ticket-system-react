@@ -21,7 +21,11 @@ Administrators can additionally:
 - Create and delete screenings
 - Manage reservations across the system
 
-The project was developed as an evolution of an earlier ASP.NET Core MVC version, with the final version using a React frontend and an ASP.NET Core Web API backend.
+This repository contains the evolved version of the project. The system was initially implemented with **ASP.NET Core MVC** and was later redesigned using a **React frontend** and an **ASP.NET Core Web API backend**.
+
+The original MVC implementation is available here:
+
+[Cinema Ticket Reservation System — ASP.NET Core MVC](https://github.com/alvaarobuendia/cinema-ticket-system-mvc)
 
 ## Features
 
@@ -371,11 +375,33 @@ This ensures that the same seat cannot be assigned to multiple users for the sam
 - API endpoints use role-based authorization.
 - Database files and generated build artifacts are excluded from version control.
 
+## Project Evolution
+
+This repository represents the second and more advanced implementation of the Cinema Ticket Reservation System.
+
+The project initially used:
+
+- ASP.NET Core MVC
+- Razor views
+- ASP.NET Core Identity
+- Entity Framework Core
+- SQLite
+
+It was then redesigned using:
+
+- React
+- ASP.NET Core Web API
+- JWT authentication
+- REST API architecture
+- Single-server deployment
+
+The original MVC version is available here:
+
+[Cinema Ticket Reservation System — ASP.NET Core MVC](https://github.com/alvaarobuendia/cinema-ticket-system-mvc)
+
 ## Academic Context
 
 Developed as part of the **Graphical User Interfaces** course at **Warsaw University of Technology (WUT)** during the 2025–2026 Erasmus+ academic year.
-
-The React version extends an earlier ASP.NET Core MVC implementation of the same cinema reservation system.
 
 ## Author
 

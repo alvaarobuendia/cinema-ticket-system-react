@@ -24,7 +24,10 @@ public static class DatabaseSeeder
 
         await SeedRolesAsync(roleManager);
 
-        await SeedAdminAsync(userManager);
+        await SeedAdminAsync(
+            userManager,
+            scope.ServiceProvider.GetRequiredService<IConfiguration>()
+        );
 
         await SeedCinemasAsync(context);
     }
@@ -47,11 +50,21 @@ public static class DatabaseSeeder
     }
 
     private static async Task SeedAdminAsync(
-        UserManager<ApplicationUser> userManager
+        UserManager<ApplicationUser> userManager,
+        IConfiguration configuration
     )
     {
-        const string adminEmail = "admin@cinema.com";
-        const string adminPassword = "Admin123!";
+        var adminEmail =
+            configuration["AdminUser:Email"];
+
+        var adminPassword =
+            configuration["AdminUser:Password"];
+
+        if (string.IsNullOrWhiteSpace(adminEmail) ||
+            string.IsNullOrWhiteSpace(adminPassword))
+        {
+            return;
+        }
 
         var admin = await userManager.FindByEmailAsync(
             adminEmail

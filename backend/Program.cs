@@ -77,6 +77,14 @@ var jwtSettings = builder.Configuration
     .GetSection("JwtSettings")
     .Get<JwtSettings>();
 
+if (jwtSettings == null ||
+    string.IsNullOrWhiteSpace(jwtSettings.SecretKey))
+{
+    throw new InvalidOperationException(
+        "JWT secret key is not configured. Set JwtSettings__SecretKey."
+    );
+}
+
 builder.Services
     .AddAuthentication(options =>
     {
@@ -122,6 +130,14 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider
+        .GetRequiredService<ApplicationDbContext>();
+
+    await db.Database.MigrateAsync();
+}
 
 await DatabaseSeeder.SeedAsync(app.Services);
 

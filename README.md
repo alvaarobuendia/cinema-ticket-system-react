@@ -1,156 +1,385 @@
-Cinema Ticket System - Tasks 3 & 4
+# Cinema Ticket Reservation System
 
-Graphical User Interfaces project developed with:
+A full-stack cinema ticket reservation system built with **React** and **ASP.NET Core Web API**.
 
-- ASP.NET Core Web API
-- React (Create React App)
-- Entity Framework Core
-- SQLite
-- Bootstrap
+The project includes user authentication, role-based authorization, profile management, screening management, seat reservations, concurrency control and single-server deployment.
 
-==================================================
-FEATURES
-==================================================
+## Overview
 
-Authentication
---------------
+The application allows users to:
+
+- Register and log in
+- Manage their profile
+- Browse cinema screenings
+- View seat availability
+- Reserve available seats
+- Cancel their own reservations
+
+Administrators can additionally:
+
+- Manage users
+- Create and delete screenings
+- Manage reservations across the system
+
+The project was developed as an evolution of an earlier ASP.NET Core MVC version, with the final version using a React frontend and an ASP.NET Core Web API backend.
+
+## Features
+
+### Authentication and Authorization
+
 - User registration
 - Login with JWT authentication
-- Role-based authorization (Admin/User)
+- ASP.NET Core Identity
+- Role-based authorization with `Admin` and `User` roles
+- Protected API endpoints
+- Secure configuration through environment variables
 
-Users Management
-----------------
-- Edit user profile
-- Admin can manage users
-- Optimistic concurrency handling using ConcurrencyStamp
+### User Management
 
-Screenings
-----------
-- List screenings
-- Admin can create screenings
-- Admin can delete screenings
+- User profile editing
+- Administrative user management
+- Optimistic concurrency control using `ConcurrencyStamp`
+- Detection of conflicting user updates
+- HTTP `409 Conflict` responses when concurrent updates are detected
 
-Reservations
-------------
+### Screenings
+
+- List available screenings
+- Create screenings as an administrator
+- Delete screenings as an administrator
+- Associate screenings with cinemas
+
+### Reservations
+
 - Display room occupancy for a selected screening
-- View available and occupied seats
+- Distinguish available and occupied seats
 - Reserve a seat
 - Cancel a reservation
-- Users can only cancel their own reservations
-- Administrators can manage all reservations
+- Restrict users to cancelling their own reservations
+- Allow administrators to manage reservations
 
-Concurrent Reservation Handling
--------------------------------
-The application prevents multiple users from reserving
-the same seat simultaneously.
+### Concurrent Reservation Handling
 
-A unique database constraint is applied on:
+The application prevents multiple users from reserving the same seat simultaneously.
 
+A unique database constraint is applied to:
+
+```text
 (ScreeningId, Row, Seat)
+```
 
-If two users attempt to reserve the same seat at the
-same time:
+If two users attempt to reserve the same seat at the same time:
 
-- the first reservation succeeds
-- the second reservation receives 409 Conflict
+1. The first reservation succeeds.
+2. The second request receives an HTTP `409 Conflict`.
 
-This guarantees seat consistency and prevents
-duplicate reservations.
+This guarantees seat consistency and prevents duplicate reservations.
 
-Production Deployment
----------------------
-The application supports deployment using a single
-ASP.NET Core server.
+## Architecture
 
-The React frontend is built using:
+The project is divided into two main applications:
 
-npm run build
+```text
+React Frontend
+      |
+      | HTTP / REST
+      v
+ASP.NET Core Web API
+      |
+      v
+Entity Framework Core
+      |
+      v
+SQLite
+```
 
-and served by ASP.NET Core through static files.
+### Backend
 
-==================================================
-TECHNOLOGIES
-==================================================
+The backend is responsible for:
 
-Backend
--------
-- ASP.NET Core
+- REST API endpoints
+- Authentication and authorization
+- JWT generation and validation
+- Business logic
+- User and role management
+- Reservation concurrency handling
+- Database access
+- Database migrations
+- Initial data seeding
+
+### Frontend
+
+The React frontend is responsible for:
+
+- Application routing
+- Authentication state
+- User interface
+- API communication
+- Screening visualization
+- Seat selection
+- User and reservation management
+
+## Project Structure
+
+```text
+backend/
+├── Controllers/
+│   ├── AuthController.cs
+│   ├── CinemasController.cs
+│   ├── ReservationsController.cs
+│   ├── ScreeningsController.cs
+│   └── UsersController.cs
+├── Data/
+│   ├── ApplicationDbContext.cs
+│   └── DesignTimeDbContextFactory.cs
+├── DTOs/
+│   ├── Auth/
+│   ├── Reservations/
+│   ├── Screenings/
+│   └── Users/
+├── Migrations/
+├── Models/
+│   ├── ApplicationUser.cs
+│   ├── Cinema.cs
+│   ├── Reservation.cs
+│   └── Screening.cs
+├── Seed/
+│   └── DatabaseSeeder.cs
+├── Services/
+│   └── JwtService.cs
+├── Settings/
+│   └── JwtSettings.cs
+├── Program.cs
+└── CinemaTicketSystem.Api.csproj
+
+frontend/
+├── public/
+├── src/
+│   ├── components/
+│   ├── pages/
+│   ├── services/
+│   ├── App.js
+│   └── index.js
+├── package.json
+└── package-lock.json
+
+CinemaTicketSystem.sln
+README.md
+```
+
+## Technologies
+
+### Backend
+
+- C#
+- .NET 8
+- ASP.NET Core Web API
+- ASP.NET Core Identity
 - Entity Framework Core
-- ASP.NET Identity
-- JWT Authentication
+- JWT authentication
 - SQLite
+- Swagger / OpenAPI
 
-Frontend
---------
+### Frontend
+
 - React
 - React Router
 - Axios
 - Bootstrap
-- Create React App
+- JavaScript
+- HTML
+- CSS
 
-==================================================
-RUN BACKEND
-==================================================
+### Concepts
 
-cd backend
-dotnet run --launch-profile http
+- REST API design
+- Authentication and authorization
+- Role-based access control
+- Optimistic concurrency control
+- Database constraints
+- Entity Framework migrations
+- Full-stack web development
+- Single-server deployment
 
-Backend runs on:
+## Requirements
 
-http://localhost:5168
+### Backend
 
-==================================================
-RUN FRONTEND
-==================================================
+- .NET 8 SDK
 
+### Frontend
+
+- Node.js 20 or later recommended
+- npm
+
+## Configuration
+
+Sensitive configuration is not stored directly in the repository.
+
+Before starting the backend, define the required environment variables.
+
+### Linux / macOS
+
+```bash
+export JwtSettings__SecretKey="replace-with-a-long-development-secret"
+export AdminUser__Password="replace-with-a-demo-admin-password"
+```
+
+### Optional Admin Account
+
+The seed process can create an administrator account when an admin password is supplied.
+
+Default email:
+
+```text
+admin@cinema.com
+```
+
+The password must be provided through:
+
+```text
+AdminUser__Password
+```
+
+If no password is configured, the demo administrator is not created.
+
+## Database
+
+The application uses SQLite with Entity Framework Core.
+
+Database migrations are automatically applied when the backend starts.
+
+The SQLite database file is excluded from version control.
+
+The repository contains the Entity Framework migrations required to recreate the database from scratch.
+
+## Run in Development
+
+### 1. Install frontend dependencies
+
+From the repository root:
+
+```bash
 cd frontend
 npm install
-npm start
+```
 
-Frontend runs on:
+### 2. Start the backend
 
-http://localhost:3000
+Return to the repository root and run:
 
-==================================================
-PRODUCTION BUILD
-==================================================
+```bash
+JwtSettings__SecretKey="replace-with-a-long-development-secret" \
+AdminUser__Password="replace-with-a-demo-admin-password" \
+dotnet run --project backend/CinemaTicketSystem.Api.csproj
+```
 
-Create the React production build:
+The API runs by default at:
 
+```text
+http://localhost:5168
+```
+
+### 3. Start the React frontend
+
+In another terminal:
+
+```bash
 cd frontend
+npm start
+```
+
+The React development server runs at:
+
+```text
+http://localhost:3000
+```
+
+## Production Build
+
+The application also supports a single-server deployment in which ASP.NET Core serves both the API and the compiled React frontend.
+
+### 1. Build the React application
+
+```bash
+cd frontend
+npm install
 npm run build
+```
 
-Copy the build into the backend static files directory:
+### 2. Copy the production build to ASP.NET Core
 
-cp -r build ../backend/wwwroot
+From the repository root:
 
-Run the backend:
+```bash
+rm -rf backend/wwwroot
+mkdir -p backend/wwwroot
+cp -r frontend/build/* backend/wwwroot/
+```
 
-cd ../backend
-dotnet run
+### 3. Run the backend
 
-The entire application will be available from a
-single ASP.NET Core server.
+```bash
+JwtSettings__SecretKey="replace-with-a-long-development-secret" \
+AdminUser__Password="replace-with-a-demo-admin-password" \
+dotnet run --project backend/CinemaTicketSystem.Api.csproj
+```
 
-==================================================
-USER CONCURRENCY HANDLING
-==================================================
+The complete application is then available from:
 
-The application uses optimistic concurrency control
-with ConcurrencyStamp.
+```text
+http://localhost:5168
+```
 
-When a user is updated or deleted:
+## API Documentation
 
-- frontend sends the current ConcurrencyStamp
-- backend compares it with the database value
-- if values differ, backend returns 409 Conflict
+When the application runs in the Development environment, Swagger is available for exploring and testing the API.
 
-This prevents overwriting changes made by another
-user.
+Swagger is configured with JWT Bearer authentication support.
 
-==================================================
-DEMO ADMIN ACCOUNT
-==================================================
+## Concurrency Control
 
-Email: admin@cinema.com
-Password: Admin123!
+### User Updates
+
+User updates use optimistic concurrency control through ASP.NET Identity's `ConcurrencyStamp`.
+
+The flow is:
+
+1. The frontend retrieves the current user data and concurrency stamp.
+2. The user submits an update.
+3. The backend compares the supplied concurrency stamp with the current value.
+4. If the values differ, the request returns `409 Conflict`.
+5. Otherwise, the update is applied.
+
+This prevents one user or administrator from silently overwriting a more recent change.
+
+### Seat Reservations
+
+Reservation concurrency is enforced at the database level using a unique constraint on:
+
+```text
+ScreeningId + Row + Seat
+```
+
+This ensures that the same seat cannot be assigned to multiple users for the same screening.
+
+## Security Considerations
+
+- JWT signing secrets are provided through configuration rather than committed to source control.
+- Demo administrator passwords are provided through environment variables.
+- Password handling is delegated to ASP.NET Core Identity.
+- API endpoints use role-based authorization.
+- Database files and generated build artifacts are excluded from version control.
+
+## Academic Context
+
+Developed as part of the **Graphical User Interfaces** course at **Warsaw University of Technology (WUT)** during the 2025–2026 Erasmus+ academic year.
+
+The React version extends an earlier ASP.NET Core MVC implementation of the same cinema reservation system.
+
+## Author
+
+**Álvaro Buendía Senise**
+
+- GitHub: [alvarobuendia](https://github.com/alvaarobuendia)
+- LinkedIn: [Álvaro Buendía Senise](https://www.linkedin.com/in/%C3%A1lvaro-buend%C3%ADa-senise-777629289/)
